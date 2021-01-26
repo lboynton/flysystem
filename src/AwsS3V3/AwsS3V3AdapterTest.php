@@ -244,6 +244,21 @@ class AwsS3V3AdapterTest extends FilesystemAdapterTestCase
         $this->assertTrue($metadata['seekable']);
     }
 
+    /**
+     * @test
+     */
+    public function moving_with_config(): void
+    {
+        $adapter = $this->adapter();
+        $adapter->write('source.txt', 'contents to be moved', new Config());
+        $mimeTypeSource = $adapter->mimeType('source.txt')->mimeType();
+        $this->assertSame('text/plain', $mimeTypeSource);
+
+        $adapter->move('source.txt', 'destination.txt', new Config(['ContentType' => 'text/plain+special']));
+        $mimeTypeDestination = $adapter->mimeType('destination.txt')->mimeType();
+        $this->assertSame('text/plain+special', $mimeTypeDestination);
+    }
+
     protected static function createFilesystemAdapter(bool $streaming = true, array $options = []): FilesystemAdapter
     {
         static::$stubS3Client = new S3ClientStub(static::s3Client());
